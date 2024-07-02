@@ -22,10 +22,30 @@ namespace FormWithEmail
             string email = txtEmail.Text;
             string message = txtMessage.Text;
 
+            string userId = GenerateUserId();
+            string password = GeneratePassword();
+
             // Call the method to send the email
-            SendEmail(name, email, message);
+            SendEmail(name, email, message, userId, password);
         }
-        private void SendEmail(string name, string email, string message)
+        private string GenerateUserId()
+        {
+            return Guid.NewGuid().ToString("N").Substring(0, 8); // Generate an 8-character user ID
+        }
+
+        private string GeneratePassword()
+        {
+            const string valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+            Random random = new Random();
+            char[] res = new char[8];
+            for (int i = 0; i < res.Length; i++)
+            {
+                res[i] = valid[random.Next(valid.Length)];
+            }
+            return new string(res);
+        }
+
+        private void SendEmail(string name, string email, string message, string userId, string password)
         {
             try
             {
@@ -39,10 +59,10 @@ namespace FormWithEmail
                 {
                     From = new MailAddress("deepakmaurya0590@gmail.com"),
                     Subject = "Form Submission",
-                    Body = $"Name: {name}<br/>Email: {email}<br/>Message: {message}",
+                    Body = $"Name: {name}<br/>Email: {email}<br/>Message: {message}<br/>User ID: {userId}<br/>Password: {password}",
                     IsBodyHtml = true,
                 };
-                mailMessage.To.Add("satyaprakash9919346535@gmail.com");
+                mailMessage.To.Add(email);
 
                 //MailMessage mailMessage = new MailMessage();
                 //mailMessage.From = new MailAddress("satyaprakash9919346535@gmail.com","Satya TMT");
@@ -58,6 +78,9 @@ namespace FormWithEmail
                 // Send the email
                 smtpClient.Send(mailMessage);   
                 Response.Write("Email sent successfully.");
+                txtName.Text = "";
+                txtEmail.Text = "";
+                txtMessage.Text = "";
             }
             catch (Exception ex)
             {
